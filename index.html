@@ -1,0 +1,546 @@
+<!DOCTYPE html>
+<html lang="ur" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>ٹیگ داخل دفتر جنریٹر</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Nastaliq+Urdu:wght@400;600;700&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+<style>
+  :root{
+    --bg:#f4f1ea;
+    --card:#ffffff;
+    --ink:#1a1a1a;
+    --muted:#6b6b6b;
+    --line:#c9c2b3;
+    --accent:#7a1f1f;
+  }
+  @media (prefers-color-scheme: dark){
+    :root:not([data-theme="light"]){
+      --bg:#1b1a18;
+      --card:#242220;
+      --ink:#efe9dd;
+      --muted:#a79c8a;
+      --line:#4a453d;
+      --accent:#c96a6a;
+    }
+  }
+  :root[data-theme="dark"]{
+    --bg:#1b1a18;
+    --card:#242220;
+    --ink:#efe9dd;
+    --muted:#a79c8a;
+    --line:#4a453d;
+    --accent:#c96a6a;
+  }
+  *{box-sizing:border-box;}
+  body{
+    margin:0;
+    background:var(--bg);
+    color:var(--ink);
+    font-family:"Noto Nastaliq Urdu", serif;
+    padding:24px;
+  }
+  h1{
+    text-align:center;
+    font-size:22px;
+    margin:0 0 20px;
+  }
+  .wrap{
+    display:grid;
+    grid-template-columns:1fr 1fr;
+    gap:20px;
+    max-width:1200px;
+    margin:0 auto;
+  }
+  @media (max-width:900px){
+    .wrap{grid-template-columns:1fr;}
+  }
+  @media (max-width:480px){
+    body{padding:12px;}
+    h1{font-size:18px;}
+    .panel{padding:12px;}
+    #letter{padding:16px 12px; font-size:16px;}
+    .letter-head{font-size:16px;}
+    .letter-meta{font-size:15px;}
+    .sign-row{flex-wrap:nowrap; gap:8px; margin-top:30px;}
+    .sign-block{font-size:11px;}
+    .stamp-box{width:78px; height:78px; font-size:9px; margin-bottom:6px;}
+    .sign-line{width:78px; height:28px; font-size:9px; margin-bottom:6px;}
+    .mock-stamp-img{width:78px; height:78px; margin-bottom:6px;}
+  }
+  .panel{
+    background:var(--card);
+    border:1px solid var(--line);
+    border-radius:10px;
+    padding:18px;
+  }
+  .panel h2{
+    font-size:18px;
+    margin-top:0;
+    border-bottom:1px solid var(--line);
+    padding-bottom:8px;
+  }
+  label{
+    display:block;
+    font-size:15px;
+    margin:12px 0 4px;
+    color:var(--muted);
+  }
+  input[type=text], input[type=date], select, textarea{
+    width:100%;
+    padding:8px 10px;
+    font-family:"Noto Nastaliq Urdu", serif;
+    font-size:16px;
+    border:1px solid var(--line);
+    border-radius:6px;
+    background:var(--bg);
+    color:#fff;
+  }
+  select{cursor:pointer;}
+  .row{display:flex; gap:10px;}
+  .row > div{flex:1;}
+  .fixed-note{
+    background:var(--bg);
+    border:1px dashed var(--line);
+    border-radius:6px;
+    padding:8px 10px;
+    font-size:15px;
+    color:var(--muted);
+  }
+  .actions{
+    margin-top:18px;
+    display:flex;
+    gap:10px;
+  }
+  .actions button{
+    flex:1;
+    padding:10px;
+    border-radius:6px;
+    border:1px solid var(--accent);
+    background:var(--accent);
+    color:#fff;
+    font-family:"Noto Nastaliq Urdu", serif;
+    font-size:16px;
+    cursor:pointer;
+  }
+  .actions button.secondary{
+    background:transparent;
+    color:var(--accent);
+  }
+  .hint{
+    font-size:12px;
+    color:var(--muted);
+    margin-top:6px;
+  }
+  /* Letter preview */
+  #letter{
+    background:#fffdf8;
+    color:#111;
+    border:1px solid #d8d0bd;
+    border-radius:4px;
+    padding:30px 26px;
+    font-size:19px;
+    line-height:2.1;
+    min-height:520px;
+  }
+  .letter-head{
+    display:flex;
+    justify-content:space-between;
+    font-weight:700;
+    font-size:19px;
+    margin-bottom:14px;
+  }
+  .letter-meta{
+    text-align:center;
+    font-size:18px;
+    font-weight:700;
+    margin-bottom:22px;
+    direction:ltr;
+  }
+  .letter-body{
+    text-align:justify;
+    margin-bottom:40px;
+  }
+  .sign-row{
+    display:flex;
+    justify-content:space-between;
+    align-items:flex-end;
+    margin-top:50px;
+    gap:12px;
+  }
+  .sign-block{
+    text-align:center;
+    font-size:16px;
+    flex:1 1 0;
+    min-width:0;
+  }
+  .stamp-box{
+    width:130px;
+    height:130px;
+    border:2px dashed #b7ae98;
+    border-radius:50%;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    color:#a49b85;
+    font-size:13px;
+    margin:0 auto 10px;
+  }
+  .sign-line{
+    width:130px;
+    height:40px;
+    border-bottom:2px dashed #b7ae98;
+    margin:0 auto 10px;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    color:#a49b85;
+    font-size:13px;
+  }
+  .mock-stamp-img{
+    width:120px;
+    height:120px;
+    object-fit:contain;
+    display:block;
+    margin:0 auto 8px;
+  }
+  @media print{
+    body *{visibility:hidden;}
+    #letter, #letter *{visibility:visible;}
+    #letter{
+      position:absolute;
+      top:0; right:0; left:0;
+      border:none;
+      box-shadow:none;
+    }
+  }
+  #screenshotOverlay{
+    display:none;
+    position:fixed;
+    inset:0;
+    background:#000;
+    z-index:999;
+    align-items:center;
+    justify-content:center;
+  }
+  #screenshotOverlay.active{
+    display:flex;
+  }
+  #closeScreenshot{
+    position:fixed;
+    top:12px;
+    left:12px;
+    z-index:1001;
+    padding:8px 14px;
+    border-radius:6px;
+    border:1px solid #888;
+    background:#222;
+    color:#fff;
+    font-family:"Noto Nastaliq Urdu", serif;
+    font-size:14px;
+  }
+  #screenshotStage{
+    width:100vw;
+    height:100vh;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    overflow:hidden;
+  }
+  input[type=date]{
+    
+    color:#fff;
+    direction:ltr;
+    text-align:right;
+    cursor:pointer;
+  }
+  input[type=date]::-webkit-calendar-picker-indicator{
+    cursor:pointer;
+    opacity:1;
+    filter:invert(1) brightness(2);
+  }
+  footer{
+    max-width:1200px;
+    margin:30px auto 0;
+    text-align:center;
+    font-size:14px;
+    color:var(--muted);
+    padding:14px 10px 4px;
+    border-top:1px dashed var(--line);
+  }
+  footer a{
+    color:var(--accent);
+    text-decoration:none;
+    font-weight:700;
+  }
+  footer a:hover{
+    text-decoration:underline;
+  }
+  #screenshotLetter{
+    background:#fffdf8;
+    color:#111;
+    transform-origin:center center;
+  }
+  #siteFooter{
+    max-width:1200px;
+    margin:28px auto 0;
+    text-align:center;
+    font-family:Arial, Helvetica, sans-serif;
+    font-size:13px;
+    color:var(--muted);
+    padding:14px 10px;
+    border-top:1px solid var(--line);
+    direction:ltr;
+  }
+  #siteFooter a{
+    color:var(--accent);
+    text-decoration:none;
+    font-weight:600;
+  }
+  #siteFooter a:hover{
+    text-decoration:underline;
+  }
+</style>
+</head>
+<body>
+
+<h1>ٹیگ داخل دفتر ۔ جوابی خط جنریٹر</h1>
+
+<div class="wrap">
+
+  <div class="panel">
+    <h2>تفصیلات درج کریں</h2>
+
+    <div class="fixed-note">
+      تھانہ: تھانہ اربن ایریا&nbsp;&nbsp;|&nbsp;&nbsp;ضلع: ضلع سرگودھا
+    </div>
+
+    <div class="row">
+      <div>
+        <label>کال ٹیگ سیریل نمبر</label>
+        <input type="text" id="tagSerial" placeholder="4183">
+      </div>
+      <div>
+        <label>تاریخ</label>
+        <input type="date" id="tagDate">
+      </div>
+    </div>
+    <div class="hint">ٹیگ نمبر خود بخود اس format میں بنے گا: UA-D/M/YYYY-سیریل</div>
+
+    <label>تفتیشی آفیسر</label>
+    <select id="investigatingOfficer">
+      <option value="منور اقبال SI">منور اقبال SI</option>
+      <option value="شاہد اقبال SI">شاہد اقبال SI</option>
+      <option value="نعیم بالا SI">نعیم بالا SI</option>
+      <option value="غلام شبیر ASI">غلام شبیر ASI</option>
+      <option value="آصف تنویر ASI">آصف تنویر ASI</option>
+      <option value="محمد بلال حیدر ASI">محمد بلال حیدر ASI</option>
+    </select>
+
+    <label>نوعیت</label>
+    <select id="natureType"></select>
+
+    <label>خط کا متن (نوعیت سلیکٹ کرنے پر خود بن جائے گا، چاہیں تو ترمیم کریں)</label>
+    <textarea id="bodyText" rows="6">جناب عالی! گزارش ہے کہ پڑتال 15 کال ٹیگ نمبری {TAG} عمل میں لائی گئی۔ کالر بیانی ہے کہ گھریلو معمولی تلخ کلامی کا معاملہ ہونا پایا گیا تھا، مزید کارروائی نہیں کروانی۔ بذریعہ معززین ہماری صلح ہو چکی ہے، کالر درخواست بھی لے کر تھانہ حاضر نہیں ہوا۔ لہٰذا ٹیگ ہذا کو داخل دفتر کیا جا رہا ہے۔</textarea>
+    <div class="hint">{TAG} خود بخود اوپر بنے گئے ٹیگ نمبر سے بدل جائے گا۔</div>
+
+    <div class="actions">
+      <button onclick="renderLetter()">جواب بنائیں</button>
+      <button class="secondary" onclick="window.print()">پرنٹ کریں</button>
+    </div>
+    <div class="actions">
+      <button class="secondary" onclick="openScreenshotMode()">اسکرین شاٹ موڈ (ایک ہی اسکرین)</button>
+    </div>
+    <div class="actions">
+      <button onclick="downloadLetterImage()">تصویر ڈاؤن لوڈ کریں (PNG)</button>
+    </div>
+  </div>
+
+  <div class="panel">
+    <h2>پیش منظر</h2>
+    <div id="letter">
+      <div class="letter-head">
+        <span>تھانہ اربن ایریا</span>
+        <span>ضلع سرگودھا</span>
+      </div>
+      <div class="letter-meta" id="pv-tag">UA-___/___/____-___</div>
+      <div class="letter-body" id="pv-body"></div>
+      <div class="sign-row">
+        <div class="sign-block">
+          <img class="mock-stamp-img" src="Stamp_ps.PNG" alt="مہر">
+          <div id="pv-inv" style="font-weight:700;">___</div>
+        </div>
+        <div class="sign-block">
+          <img class="mock-stamp-img" src="sho_stamp.PNG" alt="مہر و دستخط">
+        </div>
+      </div>
+    </div>
+    <div class="hint">دونوں طرف مہر اور دستخط کی جگہ خالی رکھی گئی ہے۔ پرنٹ کے بعد اصل مہر اور دستخط ہاتھ سے لگائیں۔</div>
+  </div>
+
+</div>
+
+<div id="screenshotOverlay">
+  <button id="closeScreenshot" onclick="closeScreenshotMode()">بند کریں ✕</button>
+  <div id="screenshotStage">
+    <div id="screenshotLetter"></div>
+  </div>
+</div>
+
+<footer>
+  Developed by <a href="https://sohaibyounas076.github.io/portfolio/" target="_blank" rel="noopener">Sohaib Younas</a>, PSA
+</footer>
+
+<script>
+const NATURE_TEMPLATES = {
+  "معمولی تلخ کلامی": "جناب عالی! گزارش ہے کہ پڑتال 15 کال ٹیگ نمبری {TAG} عمل میں لائی گئی۔ کالر بیانی ہے کہ گھریلو معمولی تلخ کلامی کا معاملہ ہونا پایا گیا تھا، مزید کارروائی نہیں کروانی۔ بذریعہ معززین ہماری صلح ہو چکی ہے، کالر درخواست بھی لے کر تھانہ حاضر نہیں ہوا۔ لہٰذا ٹیگ ہذا کو داخل دفتر کیا جا رہا ہے۔",
+
+  "موقف درست ہونا نہ پایا گیا": "جناب عالی! گزارش ہے کہ پڑتال 15 کال ٹیگ نمبری {TAG} عمل میں لائی گئی۔ کالر کا موقف درست ثابت ہونا نہ پایا گیا، تصدیق ہونا طلب ہے۔ کالر نے تھانہ میں درخواست نہ گزاری ہے، بعد از درخواست موصول ہونے پر اور تصدیق ہونے پر کارروائی عمل میں لائی جائے گی۔ لہٰذا فلحال ٹیگ ہذا کو داخل دفتر کیا جانا مناسب ہے۔",
+
+  "میڈیکل موصول نہ ہوا": "جناب عالی! گزارش ہے کہ پڑتال و دریافت ٹیگ نمبری {TAG} عمل میں لائی گئی۔ معاملہ لڑائی جھگڑا کا ہونا پایا گیا لیکن تاحال میڈیکل موصول نہ ہوا ہے، بعد از میڈیکل موصول ہونے پر کارروائی عمل میں لائی جائے گی۔ لہٰذا فلحال ٹیگ ہذا کو داخل دفتر کیا جانا مناسب ہے۔",
+
+  "دیوانی نوعیت": "جناب عالی! گزارش ہے کہ پڑتال و دریافت ٹیگ نمبری {TAG} عمل میں لائی گئی۔ معاملہ لین دین کا ہونا پایا گیا ہے، درخواست دہندہ کو ہدایت ہوئی کہ عدالت سے رجوع کرے، بعد از عدالت سے آرڈر موصول ہونے پر کارروائی عمل میں لائی جائے گی۔ لہٰذا فلحال ٹیگ ہذا کو داخل دفتر کیا جانا مناسب ہے۔",
+
+  "موٹر سائیکل مل گیا": "جناب عالی! گزارش ہے کہ پڑتال و دریافت ٹیگ نمبری {TAG} عمل میں لائی گئی۔ کالر بیانی ہے کہ میرا موٹر سائیکل چوری نہ ہوا ہے جو کہ مجھے مل گیا ہے، غلط فہمی کی بناء پر 15 کال کی تھی، مزید کارروائی نہیں کروانی ہے۔ جس پر رپٹ اطلاع درج روزنامچہ کر کے سیف سٹی سے ٹیگ ہذا کا ہیڈ تبدیل کر کے ٹیگ ہذا کو مکمل کیا جا رہا ہے۔",
+
+  "موبائل گمشدگی": "جناب عالی! گزارش ہے کہ پڑتال و دریافت ٹیگ نمبری {TAG} عمل میں لائی گئی۔ معاملہ موبائل فون گمشدہ کا ہونا پایا گیا ہے، موبائل فون کو بذریعہ CMS ٹریسنگ پر لگایا گیا، درخواست دہندہ کی داد رسی کی گئی۔ لہٰذا گمشدگی کی رپورٹ مرتب کر کے درخواست دہندہ کو فارغ کیا گیا۔"
+};
+
+function populateNatureSelect(){
+  const sel = document.getElementById('natureType');
+  sel.innerHTML = Object.keys(NATURE_TEMPLATES)
+    .map(k => `<option value="${k}">${k}</option>`).join('');
+}
+
+function applyNatureTemplate(){
+  const nature = document.getElementById('natureType').value;
+  const template = NATURE_TEMPLATES[nature];
+  if(template){
+    document.getElementById('bodyText').value = template;
+  }
+  renderLetter();
+}
+
+function formatTag(){
+  const serial = document.getElementById('tagSerial').value.trim() || '___';
+  const dateVal = document.getElementById('tagDate').value;
+  let dPart = '___', mPart = '___', yPart = '____';
+  if(dateVal){
+    const [y,m,d] = dateVal.split('-');
+    dPart = parseInt(d,10);
+    mPart = parseInt(m,10);
+    yPart = y;
+  }
+  return `UA-${dPart}/${mPart}/${yPart}-${serial}`;
+}
+
+function renderLetter(){
+  const tag = formatTag();
+  const inv = document.getElementById('investigatingOfficer').value || '___';
+  let body = document.getElementById('bodyText').value || '';
+  body = body.replaceAll('{TAG}', tag);
+
+  document.getElementById('pv-tag').textContent = tag;
+  document.getElementById('pv-body').textContent = body;
+  document.getElementById('pv-inv').textContent = inv;
+}
+
+populateNatureSelect();
+
+['tagSerial','tagDate','investigatingOfficer','bodyText']
+  .forEach(id => document.getElementById(id).addEventListener('input', renderLetter));
+document.getElementById('investigatingOfficer').addEventListener('change', renderLetter);
+document.getElementById('natureType').addEventListener('change', applyNatureTemplate);
+
+applyNatureTemplate();
+
+function openScreenshotMode(){
+  const overlay = document.getElementById('screenshotOverlay');
+  const stage = document.getElementById('screenshotLetter');
+  stage.innerHTML = document.getElementById('letter').innerHTML;
+  overlay.classList.add('active');
+  fitScreenshotLetter();
+}
+
+function closeScreenshotMode(){
+  document.getElementById('screenshotOverlay').classList.remove('active');
+}
+
+function fitScreenshotLetter(){
+  const stage = document.getElementById('screenshotLetter');
+  const stageWrap = document.getElementById('screenshotStage');
+  // reset scale to measure natural size
+  stage.style.transform = 'scale(1)';
+  stage.style.width = '420px';
+  stage.style.padding = '24px 18px';
+
+  const availW = stageWrap.clientWidth - 24;
+  const availH = stageWrap.clientHeight - 24;
+  const naturalW = stage.offsetWidth;
+  const naturalH = stage.offsetHeight;
+
+  const scale = Math.min(availW / naturalW, availH / naturalH, 1.4);
+  stage.style.transform = `scale(${scale})`;
+}
+
+window.addEventListener('resize', () => {
+  if(document.getElementById('screenshotOverlay').classList.contains('active')){
+    fitScreenshotLetter();
+  }
+});
+window.addEventListener('orientationchange', () => {
+  setTimeout(() => {
+    if(document.getElementById('screenshotOverlay').classList.contains('active')){
+      fitScreenshotLetter();
+    }
+  }, 200);
+});
+
+function downloadLetterImage(){
+  const target = document.getElementById('letter');
+  if(typeof html2canvas === 'undefined'){
+    alert('تصویر بنانے والا فنکشن لوڈ نہیں ہو سکا۔ انٹرنیٹ کنکشن چیک کریں۔');
+    return;
+  }
+  html2canvas(target, {
+    scale: 3,
+    backgroundColor: '#fffdf8',
+    useCORS: true
+  }).then(canvas => {
+    canvas.toBlob(async blob => {
+      const tag = document.getElementById('pv-tag').textContent.replace(/[^\w\-\/]/g,'').replace(/\//g,'-');
+      const filename = `tag-jawab-${tag || 'letter'}.png`;
+      try{
+        const downloads = await claude.use('downloads');
+        if(downloads){
+          try{
+            await downloads.save({ filename, data: blob });
+            return;
+          }catch(err){
+            if(err && err.code === 'declined') return;
+            // fall through to browser fallback below
+          }
+        }
+      }catch(e){
+        // capability not available, fall through
+      }
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = filename;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+    }, 'image/png');
+  }).catch(() => {
+    alert('تصویر بنانے میں مسئلہ ہوا، دوبارہ کوشش کریں۔');
+  });
+}
+</script>
+
+</body>
+</html>
