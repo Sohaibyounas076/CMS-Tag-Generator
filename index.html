@@ -58,6 +58,9 @@
   @media (max-width:900px){
     .wrap{grid-template-columns:1fr;}
   }
+  @media (max-width:400px){
+    .row{flex-direction:column; gap:0;}
+  }
   @media (max-width:480px){
     body{padding:12px;}
     h1{font-size:18px;}
@@ -100,8 +103,11 @@
     color:var(--ink);
   }
   select{cursor:pointer;}
+  textarea{resize:vertical; min-height:120px; line-height:1.9;}
+  input[type=date]{min-height:44px; max-width:100%;}
+  img{max-width:100%;}
   .row{display:flex; gap:10px;}
-  .row > div{flex:1;}
+  .row > div{flex:1; min-width:0;}
   .fixed-note{
     background:var(--bg);
     border:1px dashed var(--line);
@@ -149,6 +155,8 @@
   .letter-head{
     display:flex;
     justify-content:space-between;
+    flex-wrap:wrap;
+    gap:6px;
     font-weight:700;
     font-size:19px;
     margin-bottom:14px;
@@ -207,49 +215,6 @@
     display:block;
     margin:0 auto 8px;
   }
-  @media print{
-    body *{visibility:hidden;}
-    #letter, #letter *{visibility:visible;}
-    #letter{
-      position:absolute;
-      top:0; right:0; left:0;
-      border:none;
-      box-shadow:none;
-    }
-  }
-  #screenshotOverlay{
-    display:none;
-    position:fixed;
-    inset:0;
-    background:#000;
-    z-index:999;
-    align-items:center;
-    justify-content:center;
-  }
-  #screenshotOverlay.active{
-    display:flex;
-  }
-  #closeScreenshot{
-    position:fixed;
-    top:12px;
-    left:12px;
-    z-index:1001;
-    padding:8px 14px;
-    border-radius:6px;
-    border:1px solid #888;
-    background:#222;
-    color:#fff;
-    font-family:"Noto Nastaliq Urdu", serif;
-    font-size:14px;
-  }
-  #screenshotStage{
-    width:100vw;
-    height:100vh;
-    display:flex;
-    align-items:center;
-    justify-content:center;
-    overflow:hidden;
-  }
   input[type=date]{
     
     color:var(--ink);
@@ -278,11 +243,6 @@
   }
   footer a:hover{
     text-decoration:underline;
-  }
-  #screenshotLetter{
-    background:#fffdf8;
-    color:#111;
-    transform-origin:center center;
   }
   #siteFooter{
     max-width:1200px;
@@ -344,16 +304,9 @@
     <select id="natureType"></select>
 
     <label>خط کا متن (نوعیت سلیکٹ کرنے پر خود بن جائے گا، چاہیں تو ترمیم کریں)</label>
-    <textarea id="bodyText" rows="6">جناب عالی! گزارش ہے کہ پڑتال 15 کال ٹیگ نمبری {TAG} عمل میں لائی گئی۔ کالر بیانی ہے کہ گھریلو معمولی تلخ کلامی کا معاملہ ہونا پایا گیا تھا، مزید کارروائی نہیں کروانی۔ بذریعہ معززین ہماری صلح ہو چکی ہے، کالر درخواست بھی لے کر تھانہ حاضر نہیں ہوا۔ لہٰذا ٹیگ ہذا کو داخل دفتر کیا جا رہا ہے۔</textarea>
+    <textarea id="bodyText" rows="6">جناب عالی! گزارش ہے کہ پڑتال 15 کال ٹیگ نمبری {TAG} عمل میں لائی گئی۔ ملاحظہ موقع کرنے پر معاملہ گھریلو معمولی تلخ کلامی کا ہونا پایا گیا، کسی قسم کا جرم قابل دست اندازی پولیس ہونا نہ پایا گیا۔ تاحال کالر نے تھانہ میں درخواست نہ گزاری ہے۔ لہٰذا ٹیگ ہذا کو داخل دفتر کیا جا رہا ہے۔</textarea>
     <div class="hint">{TAG} خود بخود اوپر بنے گئے ٹیگ نمبر سے بدل جائے گا۔</div>
 
-    <div class="actions">
-      <button onclick="renderLetter()">جواب بنائیں</button>
-      <button class="secondary" onclick="window.print()">پرنٹ کریں</button>
-    </div>
-    <div class="actions">
-      <button class="secondary" onclick="openScreenshotMode()">اسکرین شاٹ موڈ (ایک ہی اسکرین)</button>
-    </div>
     <div class="actions">
       <button onclick="downloadLetterImage()">تصویر ڈاؤن لوڈ کریں (PNG)</button>
     </div>
@@ -369,24 +322,17 @@
       <div class="letter-meta" id="pv-tag">UA-___/___/____-___</div>
       <div class="letter-body" id="pv-body"></div>
       <div class="sign-row">
+      	<div class="sign-block">
+          <img class="mock-stamp-img" src="sho_stamp.png" alt="مہر و دستخط">
+        </div>
         <div class="sign-block">
           <img class="mock-stamp-img" src="Stamp_ps.png" alt="مہر">
           <div id="pv-inv" style="font-weight:700;">___</div>
-        </div>
-        <div class="sign-block">
-          <img class="mock-stamp-img" src="sho_stamp.png" alt="مہر و دستخط">
         </div>
       </div>
     </div>
   </div>
 
-</div>
-
-<div id="screenshotOverlay">
-  <button id="closeScreenshot" onclick="closeScreenshotMode()">بند کریں ✕</button>
-  <div id="screenshotStage">
-    <div id="screenshotLetter"></div>
-  </div>
 </div>
 
 <footer>
@@ -395,9 +341,11 @@
 
 <script>
 const NATURE_TEMPLATES = {
-  "معمولی تلخ کلامی": "جناب عالی! گزارش ہے کہ پڑتال 15 کال ٹیگ نمبری {TAG} عمل میں لائی گئی۔ کالر بیانی ہے کہ گھریلو معمولی تلخ کلامی کا معاملہ ہونا پایا گیا تھا، مزید کارروائی نہیں کروانی۔ بذریعہ معززین ہماری صلح ہو چکی ہے، کالر درخواست بھی لے کر تھانہ حاضر نہیں ہوا۔ لہٰذا ٹیگ ہذا کو داخل دفتر کیا جا رہا ہے۔",
+  "15 کال معمولی تلخ کلامی": "جناب عالی! گزارش ہے کہ پڑتال 15 کال ٹیگ نمبری {TAG} عمل میں لائی گئی۔ ملاحظہ موقع کرنے پر معاملہ گھریلو معمولی تلخ کلامی کا ہونا پایا گیا، کسی قسم کا جرم قابل دست اندازی پولیس ہونا نہ پایا گیا۔ تاحال کالر نے تھانہ میں درخواست نہ گزاری ہے۔ لہٰذا ٹیگ ہذا کو داخل دفتر کیا جا رہا ہے۔",
 
-  "موقف درست ہونا نہ پایا گیا": "جناب عالی! گزارش ہے کہ پڑتال 15 کال ٹیگ نمبری {TAG} عمل میں لائی گئی۔ کالر کا موقف درست ثابت ہونا نہ پایا گیا، تصدیق ہونا طلب ہے۔ کالر نے تھانہ میں درخواست نہ گزاری ہے، بعد از درخواست موصول ہونے پر اور تصدیق ہونے پر کارروائی عمل میں لائی جائے گی۔ لہٰذا فلحال ٹیگ ہذا کو داخل دفتر کیا جانا مناسب ہے۔",
+  "معمولی تلخ کلامی درخواست": "جناب عالی! گزارش ہے کہ پڑتال ٹیگ نمبری {TAG} عمل میں لائی گئی۔ ہر دو فریقین کو طلب کر کے بالمشافہ گفتگو کروائی گئی، معاملہ گھریلو معمولی تلخ کلامی کا ہونا پایا گیا، کسی قسم کا جرم قابل دست اندازی پولیس ہونا نہ پایا گیا۔ ہر دو فریقین کے درمیان صلح کی بات چل رہی ہے۔ ٹیگ ہذا {TAG} داخل دفتر کرنا مناسب ہے۔",
+
+  "موقف درست نہ پایا گیا": "جناب عالی! گزارش ہے کہ پڑتال درخواست نمبری {TAG} عمل میں لائی گئی۔ درخواست دہندہ کا موقف درست نہ پایا گیا، وقوعہ کی تصدیق ہونا طلب ہے۔ بعد از تصدیق ہونے پر کارروائی عمل میں لائی جائے گی۔ لہٰذا فلحال ٹیگ ہذا کو داخل دفتر کیا جانا مناسب ہے۔",
 
   "میڈیکل موصول نہ ہوا": "جناب عالی! گزارش ہے کہ پڑتال و دریافت ٹیگ نمبری {TAG} عمل میں لائی گئی۔ معاملہ لڑائی جھگڑا کا ہونا پایا گیا لیکن تاحال میڈیکل موصول نہ ہوا ہے، بعد از میڈیکل موصول ہونے پر کارروائی عمل میں لائی جائے گی۔ لہٰذا فلحال ٹیگ ہذا کو داخل دفتر کیا جانا مناسب ہے۔",
 
@@ -405,7 +353,13 @@ const NATURE_TEMPLATES = {
 
   "موٹر سائیکل مل گیا": "جناب عالی! گزارش ہے کہ پڑتال و دریافت ٹیگ نمبری {TAG} عمل میں لائی گئی۔ کالر بیانی ہے کہ میرا موٹر سائیکل چوری نہ ہوا ہے جو کہ مجھے مل گیا ہے، غلط فہمی کی بناء پر 15 کال کی تھی، مزید کارروائی نہیں کروانی ہے۔ جس پر رپٹ اطلاع درج روزنامچہ کر کے سیف سٹی سے ٹیگ ہذا کا ہیڈ تبدیل کر کے ٹیگ ہذا کو مکمل کیا جا رہا ہے۔",
 
-  "موبائل گمشدگی": "جناب عالی! گزارش ہے کہ پڑتال و دریافت ٹیگ نمبری {TAG} عمل میں لائی گئی۔ معاملہ موبائل فون گمشدہ کا ہونا پایا گیا ہے، موبائل فون کو بذریعہ CMS ٹریسنگ پر لگایا گیا، درخواست دہندہ کی داد رسی کی گئی۔ لہٰذا گمشدگی کی رپورٹ مرتب کر کے درخواست دہندہ کو فارغ کیا گیا۔"
+  "موبائل گمشدگی": "جناب عالی! گزارش ہے کہ پڑتال و دریافت ٹیگ نمبری {TAG} عمل میں لائی گئی۔ معاملہ موبائل فون گمشدہ کا ہونا پایا گیا ہے، موبائل فون کو بذریعہ CMS ٹریسنگ پر لگایا گیا، درخواست دہندہ کی داد رسی کی گئی۔ لہٰذا گمشدگی کی رپورٹ مرتب کر کے درخواست دہندہ کو فارغ کیا گیا۔",
+
+  "موٹر سائیکل بلاک": "جناب عالی! گزارش ہے کہ پڑتال درخواست ٹیگ نمبری {TAG} عمل میں لائی گئی۔ درخواست دہندہ بیانی ہے کہ اس نے موٹر سائیکل فروخت کر دیا تھا لیکن خریدار اپنے نام نہ کروا رہا ہے۔ موٹر سائیکل کی ملکیت کا ثبوت نہ مل سکا، جس کی بابت ایکسائز دفتر میں درخواست گزاری گئی ہے۔ بعد از تصدیق رپٹ درج کر کے سائل کے حوالے کی جائے گی۔ فلحال ٹیگ {TAG} ہذا داخل دفتر کیا جانا مناسب ہے۔",
+
+  "حاضر نہ آئے": "جناب عالی! گزارش ہے کہ درخواست نمبری {TAG} عمل میں لائی گئی۔ ہر دو فریقین کو متعدد بار طلب کرنے کے باوجود جو کہ حاضر نہ آئے، شامل دریافت نہ ہوئے۔ لہٰذا فلحال ٹیگ ہذا کو داخل دفتر کیا جانا مناسب ہے۔",
+
+  "موبائل فون": "جناب عالی! گزارش ہے کہ درخواست نمبری {TAG} عمل میں لائی گئی۔ معاملہ موبائل فون کا ہونا پایا گیا، دوران دریافت و تفتیش موبائل فون سائل سے گرنا پایا گیا۔ چوری کی بابت درخواست دہندہ کا موقف درست ہونا نہ ثابت ہوا، جس کی تصدیق جاری ہے۔ موبائل فون کو بذریعہ CMS ٹریسنگ پر لگایا گیا۔ لہٰذا فلحال ٹیگ ہذا کو مکمل کیا جا رہا ہے۔"
 };
 
 function populateNatureSelect(){
@@ -455,48 +409,6 @@ document.getElementById('investigatingOfficer').addEventListener('change', rende
 document.getElementById('natureType').addEventListener('change', applyNatureTemplate);
 
 applyNatureTemplate();
-
-function openScreenshotMode(){
-  const overlay = document.getElementById('screenshotOverlay');
-  const stage = document.getElementById('screenshotLetter');
-  stage.innerHTML = document.getElementById('letter').innerHTML;
-  overlay.classList.add('active');
-  fitScreenshotLetter();
-}
-
-function closeScreenshotMode(){
-  document.getElementById('screenshotOverlay').classList.remove('active');
-}
-
-function fitScreenshotLetter(){
-  const stage = document.getElementById('screenshotLetter');
-  const stageWrap = document.getElementById('screenshotStage');
-  // reset scale to measure natural size
-  stage.style.transform = 'scale(1)';
-  stage.style.width = '420px';
-  stage.style.padding = '24px 18px';
-
-  const availW = stageWrap.clientWidth - 24;
-  const availH = stageWrap.clientHeight - 24;
-  const naturalW = stage.offsetWidth;
-  const naturalH = stage.offsetHeight;
-
-  const scale = Math.min(availW / naturalW, availH / naturalH, 1.4);
-  stage.style.transform = `scale(${scale})`;
-}
-
-window.addEventListener('resize', () => {
-  if(document.getElementById('screenshotOverlay').classList.contains('active')){
-    fitScreenshotLetter();
-  }
-});
-window.addEventListener('orientationchange', () => {
-  setTimeout(() => {
-    if(document.getElementById('screenshotOverlay').classList.contains('active')){
-      fitScreenshotLetter();
-    }
-  }, 200);
-});
 
 function downloadLetterImage(){
   const target = document.getElementById('letter');
